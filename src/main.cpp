@@ -48,17 +48,17 @@ int main() {
 void pre_game() {
   ball_select();
   switch (bc) {
-  case ball_color::red:
-    bc_s = color::red;
-    break;
-  case ball_color::green:
-    bc_s = color::green;
-    break;
-  case ball_color::blue:
-    bc_s = color::blue;
-    break;
-  default:
-    break;
+    case ball_color::red:
+      bc_s = color::red;
+      break;
+    case ball_color::green:
+      bc_s = color::green;
+      break;
+    case ball_color::blue:
+      bc_s = color::blue;
+      break;
+    default:
+      break;
   }
   Brain.Screen.clearScreen();
 }
@@ -71,6 +71,7 @@ void ball_select() {
     Brain.Screen.drawCircle(300, 80, 20, color::blue);
     Brain.Screen.printAt(120, 150, "Use < > to select ball color");
     Brain.Screen.printAt(170, 170, "Press A to start");
+
     if (Controller1.ButtonLeft.pressing()) {
       if (bc == ball_color::red) {
         bc = ball_color::red;
@@ -107,9 +108,9 @@ void ball_select() {
 int screen_update() {
   while (health > 0) {
     Brain.Screen.clearScreen();
-    health_bar();
-    score_bar();
-    basket();
+    // health_bar();
+    // score_bar();
+    // basket();
     Brain.Screen.render(true);
     wait(screen_ticks, msec);
   }
@@ -117,12 +118,12 @@ int screen_update() {
 }
 
 void health_bar() {
-  char health_bar[health + 1];
-  for (int i = 0; i < health; i++) {
+  char health_bar[health + 1];  // 創建血量條，長度為血量 +1，因為陣列後方需要加上結束符號'\0'。
+  for (int i = 0; i < health; i++) {  // 迴圈寫入'I'作為血量條。
     health_bar[i] = 'I';
   }
-  health_bar[health] = '\0';
-  Brain.Screen.printAt(320, 20, "[Health: %s]", &health_bar);
+  health_bar[health] = '\0'; // 寫入結束符號。
+  Brain.Screen.printAt(320, 20, "[Health: %s]", &health_bar); // 印出血量條。
 }
 
 void score_bar() {
@@ -130,37 +131,37 @@ void score_bar() {
 }
 
 void ball_fall() {
-  float t = 0;
-  while(health > 0) {
-    ball_position[1] = ball_position[1] + 0.5 * 9.8 * t * t;
-    Brain.Screen.drawCircle(ball_position[0], ball_position[1], 10, bc_s);
-    if (ball_position[1] > 200) {
-      if (ball_position[0] > basket_position[0] - 10 && ball_position[0] < basket_position[0] + 40) {
-        score = score + 1;
+  float t = 0;  // 時間
+  while(health > 0) {  // 當血量大於0時，球會一直掉落。
+    ball_position[1] = ball_position[1] + 0.5 * 9.8 * t * t;  // 重力加速度為9.8m/s^2
+    Brain.Screen.drawCircle(ball_position[0], ball_position[1], 10, bc_s);  // 畫出球軌跡。
+    if (ball_position[1] > 200) { // 當球掉落到地面時，判斷球是否進入籃子。
+      if (ball_position[0] > basket_position[0] - 10 && ball_position[0] < basket_position[0] + 40) { // 球進入籃子時，分數加1。
+        score = score + 1;  // 分數加1。
       } else {
-        health = health - 1;
+        health = health - 1;  // 球未進入籃子時，血量減1。
       }
-      t = 0;
-      ball_position[0] = rand() % 480;
-      ball_position[1] = 50;
+      t = 0; // 時間歸零。
+      ball_position[0] = rand() % 480; // 球的x位置隨機。
+      ball_position[1] = 50;  // 球的y位置固定
     }
-    t = t + 0.005;
-    wait(5, msec);
+    t = t + 0.005; // 時間增加。
+    wait(5, msec); // 等待5毫秒。
   }
 }
 
 void basket() {
-  if (health > 0) {
-    if (Controller1.ButtonLeft.pressing()) {
-      basket_position[0] = basket_position[0] - 10;
-    } else if (Controller1.ButtonRight.pressing()) {
-      basket_position[0] = basket_position[0] + 10;
+  if (health > 0) { // 當血量大於0時，籃子才能移動。
+    if (Controller1.ButtonLeft.pressing()) { // 當按下左鍵時，籃子向左移動。
+      basket_position[0] = basket_position[0] - 10;  // 球的x位置減10。
+    } else if (Controller1.ButtonRight.pressing()) {  // 當按下右鍵時，籃子向右移動。
+      basket_position[0] = basket_position[0] + 10; // 球的x位置加10。
     }
-    if (basket_position[0] < 0) {
-      basket_position[0] = 0;
-    } else if (basket_position[0] > 480) {
-      basket_position[0] = 480;
+    if (basket_position[0] < 0) { // 當籃子超出左邊界時，籃子位置固定。
+      basket_position[0] = 0;  
+    } else if (basket_position[0] > 460) {  // 當籃子超出右邊界時，籃子位置固定。
+      basket_position[0] = 460;  
     }
-    Brain.Screen.drawRectangle(basket_position[0], basket_position[1], 30, 10, color::white);
+    Brain.Screen.drawRectangle(basket_position[0], basket_position[1], 30, 10, color::white);  // 畫出籃子。
   }
 }
